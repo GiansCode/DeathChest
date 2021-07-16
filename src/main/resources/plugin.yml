@@ -1,0 +1,6 @@
+name: DeathChests
+author: xQuickGlare
+version: ${project.version}
+main: io.alerium.deathchests.DeathChestsPlugin
+commands:
+  deathchest:

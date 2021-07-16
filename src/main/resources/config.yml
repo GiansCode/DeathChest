@@ -1,0 +1,13 @@
+deathChestItem:
+  material: CHEST
+  name: "<red>Death chest"
+  lore:
+    - "<red>This is a death chest"
+
+deathChestTitle: "<red>Death chest of %player%"
+
+messages:
+  usage: "<red>Usage: /deathchest <player> <amount>"
+  playerOffline: "<red>This player is offline"
+  invalidAmount: "<red>Invalid amount of chests"
+  commandExecuted: "<green>Chests given!"
