@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class ChestManager {
@@ -32,14 +33,11 @@ public class ChestManager {
 
     @Getter private NamespacedKey deathChestKey;
     @Getter private ItemStack deathChestItem;
+    @Getter private long despawnTime;
 
     public void enable() {
         deathChestKey = new NamespacedKey(plugin, "death_chest");
-
-        deathChestItem = plugin.getConfiguration().getItemStack("deathChestItem");
-        ItemMeta meta = deathChestItem.getItemMeta();
-        meta.getPersistentDataContainer().set(deathChestKey, PersistentDataType.INTEGER, 1);
-        deathChestItem.setItemMeta(meta);
+        reload();
 
         Bukkit.getPluginManager().registerEvents(new DeathChestListener(plugin, this), plugin);
         new DeathChestTask(plugin, this).runTaskTimerAsynchronously(plugin, 20 * 5, 20 * 5);
@@ -49,6 +47,15 @@ public class ChestManager {
     public void disable() {
         for (UUID uuid : deathChests.keySet().toArray(new UUID[0]))
             breakDeathChest(uuid);
+    }
+
+    public void reload() {
+        deathChestItem = plugin.getConfiguration().getItemStack("deathChestItem");
+        ItemMeta meta = deathChestItem.getItemMeta();
+        meta.getPersistentDataContainer().set(deathChestKey, PersistentDataType.INTEGER, 1);
+        deathChestItem.setItemMeta(meta);
+
+        despawnTime = TimeUnit.SECONDS.toMillis(plugin.getConfiguration().getConfig().getInt("chestDespawnTime"));
     }
 
     public Optional<DeathChest> getDeathChest(UUID uuid) {
@@ -86,10 +93,13 @@ public class ChestManager {
         Block block = getSafeLocation(loc).getBlock();
         block.setType(Material.CHEST);
 
-        Inventory inventory = Bukkit.createInventory(null, 9 * 5, plugin.getConfiguration().getMessage("deathChestTitle", "%player%", player.getName()));
+        DeathChest deathChest = new DeathChest(player.getUniqueId(), block.getLocation(), System.currentTimeMillis());
+        Inventory inventory = Bukkit.createInventory(deathChest, 9 * 5, plugin.getConfiguration().getMessage("deathChestTitle", "%player%", player.getName()));
         inventory.setContents(player.getInventory().getContents());
         player.getInventory().clear();
-        deathChests.put(player.getUniqueId(), new DeathChest(player.getUniqueId(), block.getLocation(), System.currentTimeMillis(), inventory));
+        deathChest.setInventory(inventory);
+
+        deathChests.put(player.getUniqueId(), deathChest);
     }
 
     private Location getSafeLocation(Location loc) {

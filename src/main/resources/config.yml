@@ -5,9 +5,22 @@ deathChestItem:
     - "<red>This is a death chest"
 
 deathChestTitle: "<red>Death chest of %player%"
+chestDespawnTime: 60 #Seconds
 
 messages:
-  usage: "<red>Usage: /deathchest <player> <amount>"
-  playerOffline: "<red>This player is offline"
-  invalidAmount: "<red>Invalid amount of chests"
-  commandExecuted: "<green>Chests given!"
+  cannotOpenDeathChest: "<red>You can't open this death chest."
+  commands:
+    help:
+      - "<gold>/deathchest reload"
+      - "<gold>/deathchest give <player> <amount>"
+      - "<gold>/deathchest giveall <amount>"
+    reload: "<green>Plugin reloaded!"
+    give:
+      usage: "<red>Usage: /deathchest give <player> <amount>"
+      playerOffline: "<red>This player is offline"
+      invalidAmount: "<red>Invalid amount of chests"
+      success: "<green>Chests given!"
+    giveAll:
+      usage: "<red>Usage: /deathchest giveAll <amount>"
+      invalidAmount: "<red>Invalid amount of chests"
+      success: "<green>Chests given!"

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class DeathChestTask extends BukkitRunnable {
@@ -23,7 +22,7 @@ public class DeathChestTask extends BukkitRunnable {
     public void run() {
         List<UUID> toBreak = new ArrayList<>();
         for (Map.Entry<UUID, DeathChest> entry : chestManager.getDeathChests().entrySet()) {
-            if (entry.getValue().getSpawnTime() + TimeUnit.MINUTES.toMillis(1) > System.currentTimeMillis())
+            if (entry.getValue().getSpawnTime() + chestManager.getDespawnTime() > System.currentTimeMillis())
                 continue;
 
             toBreak.add(entry.getKey());

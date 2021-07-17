@@ -3,6 +3,7 @@ package io.alerium.deathchests.chests.listeners;
 import com.live.bemmamin.gps.api.events.GPSStopEvent;
 import io.alerium.deathchests.DeathChestsPlugin;
 import io.alerium.deathchests.chests.ChestManager;
+import io.alerium.deathchests.chests.objects.DeathChest;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,8 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -89,8 +91,34 @@ public class DeathChestListener implements Listener {
 
         chestManager.getDeathChest(block.getLocation()).ifPresent(deathChest -> {
             event.setCancelled(true);
-            event.getPlayer().openInventory(deathChest.getInventory());
+            if (!deathChest.getOwner().equals(event.getPlayer().getUniqueId()))
+                event.getPlayer().sendMessage(plugin.getConfiguration().getMessage("messages.cannotOpenDeathChest"));
+            else
+                event.getPlayer().openInventory(deathChest.getInventory());
         });
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!event.getInventory().isEmpty())
+            return;
+
+        if (!(event.getInventory().getHolder() instanceof DeathChest deathChest))
+            return;
+
+        chestManager.breakDeathChest(deathChest.getOwner());
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        Block block = event.getBlock();
+        if (block.getType() != chestManager.getDeathChestItem().getType())
+            return;
+
+        ItemStack item = event.getItemInHand();
+        ItemMeta meta = item.getItemMeta();
+        if (meta.getPersistentDataContainer().has(chestManager.getDeathChestKey(), PersistentDataType.INTEGER))
+            event.setCancelled(true);
     }
 
     private boolean hasDeathChest(PlayerInventory inventory) {
