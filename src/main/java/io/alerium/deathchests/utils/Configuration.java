@@ -3,6 +3,7 @@ package io.alerium.deathchests.utils;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -66,7 +67,10 @@ public class Configuration {
     private Component parsePlaceholders(String s, String... placeholders) {
         for (int i = 0; i < placeholders.length; i += 2)
             s = s.replaceAll(placeholders[i], placeholders[i+1]);
-        return MiniMessage.get().parse(s);
+
+        if (ChatColor.stripColor(s).equals(s))
+            return MiniMessage.get().parse(s);
+        return LegacyComponentSerializer.legacy('&').deserialize(s);
     }
 
 }

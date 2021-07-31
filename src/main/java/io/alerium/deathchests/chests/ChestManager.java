@@ -19,10 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -75,7 +72,10 @@ public class ChestManager {
         getDeathChest(uuid).ifPresent(deathChest -> {
             Block block = deathChest.getLocation().getBlock();
             block.setType(Material.AIR);
-            deathChest.getInventory().getViewers().forEach(HumanEntity::closeInventory);
+
+            // I've to create a new ArrayList to fix a ConcurrentModificationException
+            new ArrayList<>(deathChest.getInventory().getViewers()).forEach(HumanEntity::closeInventory);
+
             for (ItemStack item : deathChest.getInventory().getContents()) {
                 if (item == null || item.getType() == Material.AIR)
                     continue;
@@ -96,6 +96,7 @@ public class ChestManager {
         DeathChest deathChest = new DeathChest(player.getUniqueId(), block.getLocation(), System.currentTimeMillis());
         Inventory inventory = Bukkit.createInventory(deathChest, 9 * 5, plugin.getConfiguration().getMessage("deathChestTitle", "%player%", player.getName()));
         inventory.setContents(player.getInventory().getContents());
+        inventory.addItem(player.getInventory().getArmorContents());
         player.getInventory().clear();
         deathChest.setInventory(inventory);
 
