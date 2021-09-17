@@ -96,7 +96,12 @@ public class ChestManager {
         DeathChest deathChest = new DeathChest(player.getUniqueId(), block.getLocation(), System.currentTimeMillis());
         Inventory inventory = Bukkit.createInventory(deathChest, 9 * 5, plugin.getConfiguration().getMessage("deathChestTitle", "%player%", player.getName()));
         inventory.setContents(player.getInventory().getContents());
-        inventory.addItem(player.getInventory().getArmorContents());
+        for (ItemStack item : player.getInventory().getArmorContents()) {
+            if (item == null || item.getType() == Material.AIR)
+                continue;
+
+            inventory.addItem(item);
+        }
         player.getInventory().clear();
         deathChest.setInventory(inventory);
 
