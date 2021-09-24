@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 @RequiredArgsConstructor
 public class DeathChestCommand implements CommandExecutor {
@@ -26,6 +25,9 @@ public class DeathChestCommand implements CommandExecutor {
             plugin.getConfiguration().getMessageList("messages.commands.help").forEach(sender::sendMessage);
             return true;
         }
+
+        if (!sender.hasPermission("deathchests.admin"))
+            return true;
 
         String subcommand = args[0];
         switch (subcommand.toLowerCase()) {
